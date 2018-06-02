@@ -1,0 +1,11 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =9
+let g:netrw_dirhist_1='/home/ouzts/ldet/test'
+let g:netrw_dirhist_2='/home/ouzts/ldet/src/ldet/util/config'
+let g:netrw_dirhist_3='/home/ouzts/ldet/src/ldet/util'
+let g:netrw_dirhist_4='/home/ouzts/ldet'
+let g:netrw_dirhist_5='/home/ouzts/ldet/.git/refs/tags'
+let g:netrw_dirhist_6='/home/ouzts/ldet/cmake/Modules'
+let g:netrw_dirhist_7='/home/ouzts/ldet/build/Testing/Temporary'
+let g:netrw_dirhist_8='/home/ouzts/ldet/src'
+let g:netrw_dirhist_9='/home/ouzts/ldet/src/ldet/util/config'

@@ -1,0 +1,9 @@
+[http]
+	sslVerify = false
+[user]
+	name = Andrew Ouzts
+	email = andrew.ouzts@FILLMEIN.com
+[init]
+	templatedir = /home/ouzts/.git_template
+[alias]
+	ctags = !.git/hooks/ctags
