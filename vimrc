@@ -54,4 +54,7 @@ augroup WraplineInTeXFile
     autocmd FileType tex,plaintex setlocal tw=79
 augroup END
 
+map <F4> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
+map <F5> :vs %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
+
 execute pathogen#infect()
