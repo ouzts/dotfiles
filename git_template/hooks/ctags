@@ -3,6 +3,10 @@ set -e
 PATH="/usr/local/bin:$PATH"
 dir="`git rev-parse --git-dir`"
 trap 'rm -f "$dir/$$.tags"' EXIT
+echo "Creating Tags File..."
 git ls-files | \
-      ctags --tag-relative -L - -f"$dir/$$.tags" --languages=c++
+      ctags --tag-relative -L - -f"$dir/$$.tags" --languages=c++ --extra=+q --fields=+iatSz --c++-kinds=+p
 mv "$dir/$$.tags" "$dir/tags"
+echo "Creating CScope file..."
+find $dir/../ -name '*.[CH]' -exec echo \"{}\" \; | sort -u > $dir/cscope.files
+cscope -qbv -f $dir/cscope.out -i$dir/cscope.files
