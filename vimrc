@@ -1,76 +1,74 @@
 " Plugins
 call plug#begin('~/.vim/plugged')
 Plug 'w0rp/ale'
-Plug 'vim-airline/vim-airline'
-Plug 'Valloric/YouCompleteMe'
-Plug 'lervag/vimtex'
-Plug 'scrooloose/nerdtree'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
-Plug 'skywind3000/asyncrun.vim'
-Plug 'kien/ctrlp.vim'
-Plug 'marcopaganini/termschool-vim-theme'
+Plug 'rhysd/vim-clang-format'
+Plug 'vim-scripts/OmniCppComplete'
 call plug#end()
+
 packadd termdebug
 
 let mapleader=","
 syntax on
 filetype plugin indent on
 
-set encoding=utf-8
-set ruler
-set history=1000
-set lazyredraw
-set backspace=indent,eol,start
-set shiftwidth=2
-set tabstop=2
-set smarttab
 set autoindent
+set backspace=indent,eol,start
 set cindent
-set expandtab
+set cinoptions=g0,t0,(0,
+set clipboard^=unnamed,unnamedplus
+set directory^=$HOME/.vim/swapfiles//
 set display+=lastline
-set showcmd
-set showmatch
-set list
-set listchars=tab:»\ ,extends:›,precedes:‹,nbsp:·,trail:·
+set encoding=utf-8
+set expandtab
+set hidden
+set history=1000
 set hlsearch
 set incsearch
+set laststatus=2
+set lazyredraw
+set list
+set listchars=tab:»\ ,extends:›,precedes:‹,nbsp:·,trail:·
+set matchpairs+=<:>
+set mouse=a
+set relativenumber
+set ruler
+set shiftwidth=2
+set shortmess+=A
+set showcmd
+set showmatch
+set smarttab
+set t_Co=256
+set tabstop=2
+set undodir=~/.vim/undodir
+set undofile
+set updatetime=100
+set visualbell t_vb=
 set wildmenu
-set wildignore+=.git,.hg,.svn
+set wildignore+=.git,.hg,.svn,*.gitkeep
 set wildignore+=*.so,*.swp,*.swo,*.pyc,.lock,.DS_Store,._*
-set wildignore+=*.o,*.obj,*.exe,*.dll
+set wildignore+=*.o,*.obj,*.exe,*.dll,*.a
 set wildignore+=*.bmp,*.gif,*.ico,*.jpg,*.jpeg,*.png,*.psd,*.webp
 set wildignore+=*.mp3,*.oga,*.ogg,*.wav,*.flac
 set wildmode=longest:full,full
-set relativenumber
-set pyxversion=2
-set mouse=a
-set path+=/home/ouzts/${PROJECT_NAME}/src/**,/home/ouzts/${PROJECT_NAME}/test/**
-set shortmess+=A
-set directory^=$HOME/.vim/swapfiles//
-set undodir=~/.vim/undodir
-set undofile
-set clipboard^=unnamed,unnamedplus
-set updatetime=100
-set makeprg=make\ -C\ ~/${PROJECT_NAME}/build
-set matchpairs+=<:>
-set hidden
-set visualbell t_vb=
-set t_Co=256
-set laststatus=2
 
-map <C-h> <C-w>h
-map <C-j> <C-j>j
-map <C-k> <C-k>k
-map <C-l> <C-l>l
+noremap <C-h> <C-w>h
+noremap <C-j> <C-w>j
+noremap <C-k> <C-w>k
+noremap <C-l> <C-w>l
+
+set makeprg=make\ -C\ $DIR_TO_MAKEFILE
+" Todo: :AsyncRun :make<CR>
+noremap <F5> :make<CR> 
+noremap <F6> :!bash -ic "cd $TEST_DIR && run_unit_tests"<CR>
 map <F3> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 map <F4> :vs %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
-map <F5> :AsyncRun make<CR>
 
 nnoremap <cr> :noh<CR><CR>:<backspace> 
+
 nnoremap <C-right> :bnext<CR>
 nnoremap <C-left> :bprev<CR>
-
 inoremap <C-right> <Esc>:bnext<CR>
 inoremap <C-left> <Esc>:bprev<CR>
 
@@ -85,10 +83,6 @@ nnoremap <Leader>n :Over<cr>
 nnoremap <Leader>p :Evaluate<cr>
 nnoremap <Leader>w :call TermDebugSendCommand('where')<cr>
 
-
-autocmd StdinReadPre * lets:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 autocmd FileType c,cpp,h ClangFormatAutoEnable " Autoformat files in google style
 
 augroup WraplineInTeXFile
@@ -98,53 +92,16 @@ augroup WraplineInTeXFile
 augroup END
 
 autocmd VimResized * wincmd =
+
+augroup ErrorLines
+    autocmd!
+    autocmd BufEnter,WinEnter * call clearmatches() |
+    
 autocmd BufEnter *.tpp :setlocal filetype=cpp
 autocmd ColorScheme * highlight debugPC ctermfg=0 ctermbg=41 cterm=NONE guifg=#000000 guibg=#00d75f gui=NONE 
 autocmd ColorScheme * highlight debugBreakpoint term=bold ctermbg=Red 
 match ErrorMsg '\%>80v.\+'
-colorscheme termschool
-
-"---------------------------------------------------------"
-"                  YouCompleteMe Config                   "
-"---------------------------------------------------------"
-let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
-let g:ycm_min_num_of_chars_for_completion=3
-let g:ycm_filetype_whitelist = {'cpp' : 1}
-let g:ycm_show_diagnostics_ui= 0
-let g:ycm_enable_diagnostic_signs = 0
-let g:ycm_enable_diagnostic_highlighting = 0
-let g:ycm_echo_current_diagnostic = 0
-let g:ycm_max_diagnostics_to_display = 0
-let g:ycm_max_num_candidates=25
-let g:ycm_auto_trigger=1
-
-function! Switch_ycm_auto_trigger()
-  if g:ycm_auto_trigger == 0
-    let g:ycm_auto_trigger = 1
-   else
-     let g:ycm_auto_trigger = 0
-   endif
-endfunction
-
-nnoremap <leader>y :call Switch_ycm_auto_trigger()<CR>
-nnoremap <leader>jd :YcmCompleter GoToDeclaration<cr>
-nnoremap <leader>ji :YcmCompleter GoToInclude<cr>
-nnoremap <leader>jj :YcmCompleter GoTo<cr>
-nnoremap <leader>jf :YcmCompleter GoToDefinition<cr>
-nnoremap <leader>jt :YcmCompleter GetType<cr>
-nnoremap <leader>jp :YcmCompleter GetParent<cr>
-nnoremap <leader>jx :YcmCompleter GetDoc<cr>
-"---------------------------------------------------------"
-
-"---------------------------------------------------------"
-"                   NERDTree Config                       "
-"---------------------------------------------------------"
-noremap <leader>l :NERDTreeFind<CR>
-"let NERDTreeShowHidden=1
-let NERDTreeIgnore = ['\.so$', '\.git']
-map <C-n> :NERDTreeToggle<CR>
-"---------------------------------------------------------"
-
+colorscheme ron
 
 let g:netrw_altv=1
 let g:netrw_browse_split = 4
@@ -165,7 +122,8 @@ let g:ale_cpp_clangtidy_checks=['*','-llvm-header-guard','-clang-analyzer-alpha*
 nmap <silent> <C-up> <Plug>(ale_previous_wrap)
 nmap <silent> <C-down> <Plug>(ale_next_wrap)
 
-let g:airline#extensions#ale#enabled=1
-let g:airline#extensions#tabline#enabled=1
-let g:airline_powerline_fonts = 1
+let g:OmniCpp_MayCompleteDot = 0
+let g:OmniCpp_MayCompleteArrow = 0
+let g:OmniCpp_MayCompleteScope = 0
 
+let g:OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD", "_GLIBCXX_STD_A", "_GLIBCXX_STD_C"]
