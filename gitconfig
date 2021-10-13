@@ -7,3 +7,10 @@
 	templatedir = /home/ouzts/.git_template
 [alias]
 	ctags = !.git/hooks/ctags
+[diff]
+	tool = vimdiff
+[merge]
+	tool = vimdiff
+	conflictstyle = diff3
+[difftool]
+	prompt = false
