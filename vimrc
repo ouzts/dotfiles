@@ -121,6 +121,62 @@ endfunction
 noremap <F3> :call ToggleImpl()<CR>
 noremap <F4> :call ToggleImpl('vsplit')<CR>
 
+let s:comment_map = { "c" : '\/\/', "cpp" : '\/\/', "java" : '\/\/', "python" : '#', "sh" : '#', "vim" : '"'}
+
+function! ToggleComment()
+  let comment_leader = '\/\/'
+  if has_key(s:comment_map, &filetype)
+    let comment_leader = s:comment_map[&filetype]
+  endif
+  
+  if getline('.') =~ '^\s*' . comment_leader
+    execute 'silent s/\v\s*\zs' . comment_leader . '\s*\ze//'
+  else
+    execute 'silent s/\v^(\s*)/\1' . comment_leader . ' /'
+  endif
+endfunction
+
+nnoremap <leader>c :call ToggleComment()<CR>
+vnoremap <leader>c :call ToggleComment()<CR>
+
+function! TrimWhitespace()
+  let l:save = winsaveview()
+  keeppatterns %s/\s\+$//e
+  xcall winrestview(l:save)
+endfunction
+
+command! TrimWhitespace call TrimWhitespace()
+nnoremap <leader>w :call TrimWhitespace()<CR>
+
+autocmd BufWritePre * if &ft == 'cpp'
+    \| call TrimWhitespace()
+    \| endif
+
+nnoremap <leader>r :%s/\<<C-r><C-w>\>//g<left><left>
+
+autocmd filetype cpp,c,vim,java set fo-=r fo-=o
+
+nnoremap <silent> <leader>o :<C-u> call append(line('.'), repeat([""], v:count1))<CR>
+nnoremap <silent> <leader>O :<C-u> call append(line('.')-1, repeat([""], v:count1))<CR>
+
+nnoremap <leader><leader> <C-^>
+cnoremap w!! w !sudo tee % >/dev/null
+
+function! Tab_Or_Complete()
+  if col('.') > 1 && strpart(getline('.'), col('.')-2, 3) =~ '^\w'
+    return "\<C-N>"
+  else
+    return "\<Tab>"
+  endif
+endfunction
+
+inoremap <Tab> <C-R>=Tab_Or_Complete()<CR>
+
+nnoremap <leader>i mmggO#include <iostream><Esc>`m
+nnoremap <leader>cout istd::cout << << std::endl;<Esc>2Bhi
+nnoremap <leader>hg mmggO#ifndef <Esc> :r! echo %:t:r<CR>kJg~$$o#define <Esc> :r! echo %:t:r<CR>kJg~$$o<Esc>Go#endif  // #define <Esc> :r! echo %:t:r<Esc>kJg~$i<Esc>`m
+
+autocmd filetype cpp setlocal commentstring=\/\/%s
 "map <F3> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 "map <F4> :vs %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 set makeprg=make\ -C\ $DIR_TO_MAKEFILE
