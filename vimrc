@@ -58,12 +58,75 @@ noremap <C-j> <C-w>j
 noremap <C-k> <C-w>k
 noremap <C-l> <C-w>l
 
+set tags += $REPO/.git/tags
+set tags += $HOME/bin/cpp_tags
+
+execute "set <M-]>=\e]"
+noremap <M-]> :vsp <CR> :exec("tag " . expand("<cword>"))<CR>
+
+set csto=1
+set nocscopeverbose
+set cscoperelative
+cs add PATH/TO/cscope.out PATH/TO/REPO
+
+noremap <C-_>s :cs find 0 <C-R>=expand("<cword>")<CR><CR>
+noremap <C-_>d :cs find 1 <C-R>=expand("<cword>")<CR><CR>
+noremap <C-_>c :cs find 2 <C-R>=expand("<cword>")<CR><CR>
+noremap <C-_>v :cs find 3 <C-R>=expand("<cword>")<CR><CR>
+noremap <C-_>t :cs find 4 <C-R>=expand("<cword>")<CR><CR>
+noremap <C-_>i :cs find 8 %:t<CR>
+noremap <C-_>f :cs find 7 <C-R>=tr(expand("<cWORD>"), "<>\"","  ")<CR><CR>
+noremap <Leader>f :cs find 7 
+
+function! BufLoaded(bufNo)
+  let tabNos = []
+  for bufInTab in tabpagebuflist(tabpagenr())
+    if a:bufNo == bufInTab
+      return 1
+    endif
+  endfor
+  return 0
+endfunction
+
+function! ToggleImpl(...)
+  let mapping = {'H' : ['C','c','cpp'], 'h' : ['c', 'C', 'cpp'], 'hpp' : ['cpp', 'C', 'c'], 'c' : ['h','H','hpp'], 'C' : ['H','h','hpp'], 'cpp' : ['hpp','H','h']}
+  
+  let this_ext = expand('%:e')
+  let corr_exts = mapping[this_ext]
+  let corr_ext = corr_exts[0]
+  let corr_file = ""
+  
+  for ext in corr_exts
+    let candidate=expand('%:p:r') . "." . ext
+    
+    if !empty(expand(glob(candidate)))
+      let corr_ext = ext
+      break
+    endif
+  endfor
+  
+  let corr_file = expand('%:p:r') . "." . corr_ext
+  
+  if a:0 > 0
+    if !BufLoaded(bufnr(corr_file))
+      execute ':vs ' . corr_file
+    else
+      echo corr_file . " already loaded."
+    endif
+  else
+    execute ':e ' . corr_file
+  endif
+endfunction
+
+noremap <F3> :call ToggleImpl()<CR>
+noremap <F4> :call ToggleImpl('vsplit')<CR>
+
+"map <F3> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
+"map <F4> :vs %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 set makeprg=make\ -C\ $DIR_TO_MAKEFILE
 " Todo: :AsyncRun :make<CR>
 noremap <F5> :make<CR> 
 noremap <F6> :!bash -ic "cd $TEST_DIR && run_unit_tests"<CR>
-map <F3> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
-map <F4> :vs %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
 
 nnoremap <cr> :noh<CR><CR>:<backspace> 
 
@@ -96,11 +159,14 @@ autocmd VimResized * wincmd =
 augroup ErrorLines
     autocmd!
     autocmd BufEnter,WinEnter * call clearmatches() |
-    
+        \ call matchadd('ErrorMsg', '\%>80v.\+', 100) |
+        \ call matchadd('ErrorMsg', '\(\<if\_s*([^=!<>]*\)\@<==[^=][^,)]*') |
+        \ call matchadd('ErrorMsg', '\(\<while\_s*([^=!<>]*\)\@<==[^=][^,)]*')
+augroup END
+
 autocmd BufEnter *.tpp :setlocal filetype=cpp
 autocmd ColorScheme * highlight debugPC ctermfg=0 ctermbg=41 cterm=NONE guifg=#000000 guibg=#00d75f gui=NONE 
 autocmd ColorScheme * highlight debugBreakpoint term=bold ctermbg=Red 
-match ErrorMsg '\%>80v.\+'
 colorscheme ron
 
 let g:netrw_altv=1
